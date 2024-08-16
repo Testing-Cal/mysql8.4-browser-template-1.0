@@ -1,0 +1,1 @@
+mysql8.4-browser-template-1.0
