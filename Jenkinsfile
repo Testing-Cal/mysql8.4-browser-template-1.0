@@ -330,7 +330,7 @@ pipeline {
 									ls -lart
                                     cat Helm.yaml
 
-									docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" -v "$WORKSPACE":/apps -w /apps alpine/helm:3.8.1 upgrade --install "${metadataVars.helmReleaseName}" -n "$namespace_name"  helm_chart  --create-namespace --atomic --timeout 300s --set image.tag=8.4-debian-12-r2  --set auth.rootPassword="password" --set primary.persistence.size="6Gi" --set service.port=$SERVICE_PORT -f Helm.yaml
+									docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" -v "$WORKSPACE":/apps -w /apps alpine/helm:3.8.1 upgrade --install "${metadataVars.helmReleaseName}" -n "$namespace_name"  helm_chart  --create-namespace --atomic --timeout 300s --set image.tag=8.4-debian-12  --set auth.rootPassword="password" --set primary.persistence.size="6Gi" --set service.port=$SERVICE_PORT -f Helm.yaml
 
 									sleep 10
 								"""
