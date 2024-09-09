@@ -311,26 +311,27 @@ pipeline {
                         """
 
 						withCredentials([file(credentialsId: "$KUBE_SECRET", variable: 'KUBECONFIG')]) {
+              env.helmReleaseName = "${metadataVars.helmReleaseName}"
 
-                                if (env.DEPLOYMENT_TYPE == 'OPENSHIFT') {
-                                    sh '''
-                                        COUNT=$(grep 'serviceAccount' Helm.yaml | wc -l)
-                                        if [[ $COUNT -gt 0 ]]
-                                        then
-                                            ACCOUNT=$(grep 'serviceAccount:' Helm.yaml | tail -n1 | awk '{ print $2}')
-                                            echo $ACCOUNT
-                                        else
-                                            ACCOUNT='default'
-                                        fi
-                                        docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" -v "$WORKSPACE":/apps -w /apps $OC_IMAGE_VERSION oc adm policy add-scc-to-user anyuid -z $ACCOUNT -n "$namespace_name"
-                                      '''
-                                }
+                if (env.DEPLOYMENT_TYPE == 'OPENSHIFT') {
+                    sh '''
+                        COUNT=$(grep 'serviceAccount' Helm.yaml | wc -l)
+                        if [[ $COUNT -gt 0 ]]
+                        then
+                            ACCOUNT=$(grep 'serviceAccount:' Helm.yaml | tail -n1 | awk '{ print $2}')
+                            echo $ACCOUNT
+                        else
+                            ACCOUNT='default'
+                        fi
+                        docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" -v "$WORKSPACE":/apps -w /apps $OC_IMAGE_VERSION oc adm policy add-scc-to-user anyuid -z $ACCOUNT -n "$namespace_name"
+                      '''
+                }
 
 								sh """
 									ls -lart
                                     cat Helm.yaml
 
-									docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" -v "$WORKSPACE":/apps -w /apps alpine/helm:3.8.1 upgrade --install "${metadataVars.helmReleaseName}" -n "$namespace_name"  helm_chart  --create-namespace --atomic --timeout 300s --set image.tag=8.4-debian-12  --set auth.rootPassword="password" --set primary.persistence.size="6Gi" --set service.port=$SERVICE_PORT -f Helm.yaml
+									docker run --rm  --user root -v "$KUBECONFIG":"$KUBECONFIG" -e KUBECONFIG="$KUBECONFIG" -v "$WORKSPACE":/apps -w /apps alpine/helm:3.8.1 upgrade --install "$helmReleaseName" -n "$namespace_name"  helm_chart  --create-namespace --atomic --timeout 300s --set image.tag=8.4-debian-12  --set auth.rootPassword="password" --set primary.persistence.size="6Gi" --set service.port=$SERVICE_PORT -f Helm.yaml
 
 									sleep 10
 								"""
