@@ -1,1 +1,2 @@
-mysql8.4-browser-template-1.0
+# MySQL 8.4
+The files in this sample template are provided for guidance purposes only. They should be customized and adapted to meet the specific requirements of your application.
