@@ -247,6 +247,7 @@ pipeline {
 
 
                                if (env.DEPLOYMENT_TYPE == 'KUBERNETES' || env.DEPLOYMENT_TYPE == 'OPENSHIFT') {
+                    env.helmReleaseName = "${metadataVars.helmReleaseName}"
                                     String kubeProperties = parseJsonString(env.JENKINS_METADATA,'kubernetes')
                                     String helmProperties = parseJsonString(env.JENKINS_METADATA,'helm')
                                     helmVars = parseJsonArray(helmProperties)
@@ -305,8 +306,9 @@ pipeline {
 
 					}
 					if (env.DEPLOYMENT_TYPE == 'KUBERNETES' || env.DEPLOYMENT_TYPE == 'OPENSHIFT') {
+                    env.helmReleaseName = "${metadataVars.helmReleaseName}"
                         sh """
-                             sed -i s+#SERVICE_NAME#+"${metadataVars.helmReleaseName}"+g ./helm_chart/values.yaml ./helm_chart/Chart.yaml
+                             sed -i s+#SERVICE_NAME#+"$helmReleaseName"+g ./helm_chart/values.yaml ./helm_chart/Chart.yaml
 
                         """
 
